@@ -9,7 +9,7 @@ import (
 
 func loadEnv() {
 	env := os.Getenv("ENV")
-	if env != "" {
+	if env == "" {
 		env = "development"
 	}
 	var file = ".env.development"
