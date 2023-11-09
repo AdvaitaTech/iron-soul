@@ -50,20 +50,21 @@ DROP TABLE IF EXISTS plans;
 CREATE TABLE plans(
   id            SERIAL PRIMARY KEY,
   name          VARCHAR(200) NOT NULL,
-  -- user_id       INT NOT NULL,
+  user_id       INT NOT NULL,
   created_at    timestamptz NOT NULL DEFAULT now(),
-  updated_at    timestamptz NOT NULL DEFAULT statement_timestamp()
+  updated_at    timestamptz NOT NULL DEFAULT statement_timestamp(),
+  CONSTRAINT    fk_users FOREIGN KEY(user_id) REFERENCES users(id)
 );
 
 DROP TABLE IF EXISTS plan_exercises;
 CREATE TABLE plan_exercises(
   id            SERIAL PRIMARY KEY,
-  -- user_id       INT NOT NULL,
+  user_id       INT NOT NULL,
   plan_id       INT NOT NULL,
   exercise_id   UUID NOT NULL,
   CONSTRAINT    fk_plan FOREIGN KEY(plan_id) REFERENCES plans(id),
-  CONSTRAINT    fk_exercise FOREIGN KEY(exercise_id) REFERENCES exercises(id)
-  -- CONSTRAINT    fk_users FOREIGN KEY(user_id) REFERENCES users(id),
+  CONSTRAINT    fk_exercise FOREIGN KEY(exercise_id) REFERENCES exercises(id),
+  CONSTRAINT    fk_users FOREIGN KEY(user_id) REFERENCES users(id)
 );
 
 DROP TABLE IF EXISTS workouts;

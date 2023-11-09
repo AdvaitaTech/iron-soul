@@ -11,7 +11,7 @@ then
   createdb "$DBNAME"
   psql -f "$FILE" "$DBNAME"
   psql -f "$SEED" "$DBNAME"
-  ENV=test go test ./...
+  ENV=test go test -v ./...
 else
   echo "please run this from the root of the server directory"
 fi
