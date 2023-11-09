@@ -71,20 +71,11 @@ DROP TABLE IF EXISTS workouts;
 CREATE TABLE workouts(
   id            SERIAL PRIMARY KEY,
   plan_id       INT DEFAULT NULL,
+  user_id       INT NOT NULL,
   created_at    timestamptz NOT NULL DEFAULT now(),
   updated_at    timestamptz NOT NULL DEFAULT statement_timestamp(),
-  CONSTRAINT    fk_plan FOREIGN KEY(plan_id) REFERENCES plans(id)
-);
-
-DROP TABLE IF EXISTS workout_exercises;
-CREATE TABLE workout_exercises(
-  id            SERIAL PRIMARY KEY,
-  workout_id    INT NOT NULL,
-  exercise_id   UUID NOT NULL,
-  created_at    timestamptz NOT NULL DEFAULT now(),
-  updated_at    timestamptz NOT NULL DEFAULT statement_timestamp(),
-  CONSTRAINT    fk_workout FOREIGN KEY(workout_id) REFERENCES workouts(id),
-  CONSTRAINT    fk_exercise FOREIGN KEY(exercise_id) REFERENCES exercises(id)
+  CONSTRAINT    fk_plan FOREIGN KEY(plan_id) REFERENCES plans(id),
+  CONSTRAINT    fk_users FOREIGN KEY(user_id) REFERENCES users(id)
 );
 
 DROP TABLE IF EXISTS workout_sets;
@@ -92,10 +83,12 @@ CREATE TABLE workout_sets(
   id            SERIAL PRIMARY KEY,
   workout_id    INT NOT NULL,
   exercise_id   UUID NOT NULL,
+  user_id       INT NOT NULL,
   weight        INT NOT NULL,
   reps          INT NOT NULL,
   created_at    timestamptz NOT NULL DEFAULT now(),
   updated_at    timestamptz NOT NULL DEFAULT statement_timestamp(),
   CONSTRAINT    fk_workout FOREIGN KEY(workout_id) REFERENCES workouts(id),
-  CONSTRAINT    fk_exercise FOREIGN KEY(exercise_id) REFERENCES exercises(id)
+  CONSTRAINT    fk_exercise FOREIGN KEY(exercise_id) REFERENCES exercises(id),
+  CONSTRAINT    fk_users FOREIGN KEY(user_id) REFERENCES users(id)
 );
