@@ -10,12 +10,31 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"iron.advaita.co/server/api"
 )
 
 type RegisterResponse struct {
 	Token string `json:"token"`
+}
+
+func CallRegisterApi(r *gin.Engine, email string, password string) RegisterResponse {
+	w := httptest.NewRecorder()
+	form := url.Values{
+		"email":    {email},
+		"password": {password},
+		"confirm":  {password},
+	}
+	req, _ := http.NewRequest("POST", "/auth/register", strings.NewReader(form.Encode()))
+	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+	r.ServeHTTP(w, req)
+	buf := new(bytes.Buffer)
+	buf.ReadFrom(w.Body)
+	log.Printf("got auth response %s", buf)
+	var result RegisterResponse
+	json.Unmarshal(buf.Bytes(), &result)
+	return result
 }
 
 func TestAuthApi(t *testing.T) {

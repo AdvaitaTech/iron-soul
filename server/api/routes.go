@@ -28,5 +28,6 @@ func LoadEnv() {
 func SetupRouter() *gin.Engine {
 	r := gin.Default()
 	LoadAuthRoutes(r)
+	LoadApiRoutes(r)
 	return r
 }
