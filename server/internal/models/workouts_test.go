@@ -11,14 +11,14 @@ func TestWorkoutsModel(t *testing.T) {
 	t.Run("should create a workout with nil plan", func(t *testing.T) {
 		var params = []SetParams{
 			{
-				exercise_id: "b1345a14-a309-43ac-b9de-aef5120f04b2",
-				weight:      40,
-				reps:        5,
+				ExerciseId: "b1345a14-a309-43ac-b9de-aef5120f04b2",
+				Weight:     40,
+				Reps:       5,
 			},
 			{
-				exercise_id: "027fb70a-e288-4cf3-b6c1-8e05da0eb984",
-				weight:      30,
-				reps:        10,
+				ExerciseId: "027fb70a-e288-4cf3-b6c1-8e05da0eb984",
+				Weight:     30,
+				Reps:       10,
 			},
 		}
 		user, _ := CreateUser("testing10@example.com", "testing@123")
@@ -29,8 +29,8 @@ func TestWorkoutsModel(t *testing.T) {
 			assert.Equal(t, "3/4 Sit-Up", workout.Sets[0].Name)
 			assert.Equal(t, "90/90 Hamstring", workout.Sets[1].Name)
 			for i, set := range workout.Sets {
-				assert.Equal(t, params[i].weight, set.Weight)
-				assert.Equal(t, params[i].reps, set.Reps)
+				assert.Equal(t, params[i].Weight, set.Weight)
+				assert.Equal(t, params[i].Reps, set.Reps)
 			}
 		}
 	})
@@ -38,14 +38,14 @@ func TestWorkoutsModel(t *testing.T) {
 	t.Run("should create a workout from a normal plan", func(t *testing.T) {
 		var params = []SetParams{
 			{
-				exercise_id: "b1345a14-a309-43ac-b9de-aef5120f04b2",
-				weight:      40,
-				reps:        5,
+				ExerciseId: "b1345a14-a309-43ac-b9de-aef5120f04b2",
+				Weight:     40,
+				Reps:       5,
 			},
 			{
-				exercise_id: "027fb70a-e288-4cf3-b6c1-8e05da0eb984",
-				weight:      30,
-				reps:        10,
+				ExerciseId: "027fb70a-e288-4cf3-b6c1-8e05da0eb984",
+				Weight:     30,
+				Reps:       10,
 			},
 		}
 		user, _ := CreateUser("testing11@example.com", "testing@123")
@@ -63,8 +63,8 @@ func TestWorkoutsModel(t *testing.T) {
 			assert.Equal(t, "3/4 Sit-Up", workout.Sets[0].Name)
 			assert.Equal(t, "90/90 Hamstring", workout.Sets[1].Name)
 			for i, set := range workout.Sets {
-				assert.Equal(t, params[i].weight, set.Weight)
-				assert.Equal(t, params[i].reps, set.Reps)
+				assert.Equal(t, params[i].Weight, set.Weight)
+				assert.Equal(t, params[i].Reps, set.Reps)
 			}
 		}
 	})

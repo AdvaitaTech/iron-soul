@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"log"
 	"time"
 )
 
@@ -38,9 +39,9 @@ func (u *WorkoutSets) Scan(v interface{}) error {
 }
 
 type SetParams struct {
-	exercise_id string
-	weight      int64
-	reps        int64
+	ExerciseId string `json:"exercise_id"`
+	Weight     int64  `json:"weight"`
+	Reps       int64  `json:"reps"`
 }
 
 func CreateWorkout(sets []SetParams, user_id int64, plan_id sql.NullInt64) error {
@@ -55,11 +56,14 @@ func CreateWorkout(sets []SetParams, user_id int64, plan_id sql.NullInt64) error
 	var id int64
 	err := res.Scan(&id)
 	if err != nil {
+		log.Printf("got workout create err %s", err.Error())
 		return err
 	}
-	for _, set := range sets {
-		_, err = tx.Exec("INSERT INTO workout_sets(workout_id, user_id, exercise_id, weight, reps) VALUES ($1, $2, $3, $4, $5)", id, user_id, set.exercise_id, set.weight, set.reps)
+	for i, set := range sets {
+		log.Printf("creating workout set %d, %d, %d", i, id, user_id)
+		_, err = tx.Exec("INSERT INTO workout_sets(workout_id, user_id, exercise_id, weight, reps) VALUES ($1, $2, $3, $4, $5)", id, user_id, set.ExerciseId, set.Weight, set.Reps)
 		if err != nil {
+			log.Printf("got workout set create err %#v %s", set, err.Error())
 			return err
 		}
 	}
