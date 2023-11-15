@@ -1,6 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: ["./App.{js,jsx,ts,tsx}", "./src/**/*.{js,jsx,ts,tsx}"],
+  content: ["./**/*.{js,jsx,ts,tsx}"],
   theme: {
     extend: {
       colors: {
@@ -41,16 +41,18 @@ module.exports = {
           900: "#f0dbd7",
         },
         background: {
-          DEFAULT: "#d8bd8a",
-          100: "#352812",
-          200: "#6a5123",
-          300: "#9e7935",
-          400: "#c69e54",
-          500: "#d8bd8a",
-          600: "#dfc9a0",
-          700: "#e7d7b8",
-          800: "#efe4d0",
-          900: "#f7f2e7",
+          DEFAULT: "#100A0A",
+          50: "#F3ECEC",
+          100: "#E7D9D9",
+          200: "#D0B4B4",
+          300: "#B88E8E",
+          400: "#A36B6B",
+          500: "#815050",
+          600: "#5B3939",
+          700: "#352121",
+          800: "#100A0A",
+          900: "#090606",
+          950: "#030202",
         },
         foreground: {
           DEFAULT: "#d8d78f",

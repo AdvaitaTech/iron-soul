@@ -22,7 +22,7 @@ func LoadEnv() {
 		file = ".env.test"
 	}
 
-	godotenv.Load("../" + file)
+	godotenv.Load("./" + file)
 }
 
 func SetupRouter() *gin.Engine {

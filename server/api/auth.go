@@ -1,6 +1,7 @@
 package api
 
 import (
+	"log"
 	"os"
 
 	"github.com/gin-gonic/gin"
@@ -23,6 +24,7 @@ func RegisterApi(c *gin.Context) {
 	var data RegisterForm
 	c.Bind(&data)
 
+	log.Printf("got register %#v", data)
 	user, err := models.CreateUser(data.Email, data.Password)
 	if data.Password != data.Confirm {
 		c.JSON(400, gin.H{
