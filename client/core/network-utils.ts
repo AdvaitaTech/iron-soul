@@ -37,3 +37,30 @@ export const createAccountApi = async (
       return res.json() as Promise<LoginResponse>;
     });
 };
+
+export const loginApi = async (email: string, password: string) => {
+  const form = new FormData();
+  form.append("email", email);
+  form.append("password", password);
+  return fetch(BASE_URL + "/auth/login", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: new URLSearchParams(form as any),
+  })
+    .then((res) => {
+      switch (res.status) {
+        case 400:
+          throw new BadDataError(res.statusText);
+        case 403:
+          throw new ForbiddenError(res.statusText);
+        case 500:
+          throw new InternalError(res.statusText);
+      }
+      return res;
+    })
+    .then((res) => {
+      return res.json() as Promise<LoginResponse>;
+    });
+};
