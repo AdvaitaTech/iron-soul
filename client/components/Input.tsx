@@ -1,6 +1,7 @@
-import { Text, TextInput, TextInputProps, View } from "react-native";
+import { TextInputProps } from "react-native";
 import clsx from "classnames";
 import { useState } from "react";
+import { StyledText, StyledTextInput, StyledView } from "./Primitives";
 
 type InputMode = "" | "focused";
 type InputProps = {
@@ -19,7 +20,7 @@ export default function LabelledInput({
 }: InputProps) {
   const [mode, setMode] = useState<InputMode>("");
   return (
-    <View
+    <StyledView
       className={clsx(
         "px-3 py-2 border border-white-100 relative rounded-md text-white w-full mb-5",
         {
@@ -27,7 +28,7 @@ export default function LabelledInput({
         }
       )}
     >
-      <Text
+      <StyledText
         className={clsx(
           "transition-all duration-200 pointer-events-none text-sm text-white-100  font-semibold",
           {
@@ -36,8 +37,8 @@ export default function LabelledInput({
         )}
       >
         {label}
-      </Text>
-      <TextInput
+      </StyledText>
+      <StyledTextInput
         {...inputProps}
         autoCapitalize="none"
         returnKeyType="done"
@@ -53,6 +54,6 @@ export default function LabelledInput({
           if (onFocus) onFocus(e);
         }}
       />
-    </View>
+    </StyledView>
   );
 }

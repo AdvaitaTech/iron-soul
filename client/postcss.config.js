@@ -1,3 +1,8 @@
 module.exports = {
-  plugins: [require("tailwindcss"), [require("nativewind/postcss")]],
+  plugins: {
+    tailwindcss: {},
+    "nativewind/postcss": {
+      output: "nativewind-output.js",
+    },
+  },
 };

@@ -1,15 +1,15 @@
-import {
-  ActivityIndicator,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { ActivityIndicator, StyleSheet } from "react-native";
 import LabelledInput from "../components/Input";
 import { useEffect, useState } from "react";
 import { createAccountApi } from "../core/network-utils";
 import { useRouter } from "expo-router";
 import * as SecureStore from "expo-secure-store";
+import {
+  StyledPressable,
+  StyledText,
+  StyledView,
+} from "../components/Primitives";
+import "../nativewind-output";
 
 type LoadingState = "idle" | "loading" | "success";
 
@@ -50,8 +50,10 @@ export default function App() {
   }, [SecureStore, router]);
 
   return (
-    <View style={styles.container} className="bg-background-800 px-2">
-      <Text className="text-white text-3xl mb-20">Create your account</Text>
+    <StyledView style={styles.container} className="bg-background-800 px-2">
+      <StyledText className="text-white text-3xl mb-20">
+        Create your account
+      </StyledText>
       <LabelledInput
         label="Email"
         textContentType="emailAddress"
@@ -73,30 +75,30 @@ export default function App() {
         onChangeText={(t) => setConfirm(t)}
       />
 
-      <Pressable
+      <StyledPressable
         onPress={onSubmit}
         className="w-full mt-10 py-3 bg-primary-400 rounded-lg flex items-center justify-center"
       >
         {loadingState === "loading" ? (
           <ActivityIndicator />
         ) : (
-          <Text className="text-lg text-white-500 font-semibold ">
+          <StyledText className="text-lg text-white-500 font-semibold ">
             Create Account
-          </Text>
+          </StyledText>
         )}
-      </Pressable>
-      <Text className="text-white mt-5">
+      </StyledPressable>
+      <StyledText className="text-white mt-5">
         Already have an account?{" "}
-        <Text
+        <StyledText
           className="underline text-primary-500"
           onPress={() => {
             router.push("/login");
           }}
         >
           Login
-        </Text>
-      </Text>
-    </View>
+        </StyledText>
+      </StyledText>
+    </StyledView>
   );
 }
 

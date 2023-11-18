@@ -1,3 +1,5 @@
+const nativewind = require("nativewind/tailwind/native");
+
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: ["./**/*.{js,jsx,ts,tsx}"],
@@ -85,5 +87,5 @@ module.exports = {
       },
     },
   },
-  plugins: [],
+  plugins: [nativewind()],
 };
