@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"log"
 	"os"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
@@ -14,17 +15,70 @@ type ExerciseParams struct {
 	name string
 }
 
+type ExerciseResponse struct {
+	Id               string   `json:"id"`
+	Name             string   `json:"name"`
+	PrimaryMuscles   []string `json:"primary_muscles"`
+	SecondaryMuscles []string `json:"secondary_muscles"`
+	Force            string   `json:"force"`
+	Level            string   `json:"level"`
+	Mechanic         string   `json:"mechanic"`
+	Equipment        string   `json:"equipment"`
+	Category         string   `json:"category"`
+	Description      string   `json:"description"`
+}
+
 func ExerciseApi(c *gin.Context) {
 	name, _ := c.GetQuery("name")
+	limitStr, ok := c.GetQuery("limit")
+	var limit int
+	if !ok {
+		val, err := strconv.Atoi(limitStr)
+		if err != nil {
+			limit = 10
+		} else {
+			limit = val
+		}
+	} else {
+		limit = 10
+	}
+	offsetStr, ok := c.GetQuery("offset")
+	var offset int
+	if !ok {
+		val, err := strconv.Atoi(offsetStr)
+		if err != nil {
+			offset = 0
+		} else {
+			offset = val
+		}
+	} else {
+		offset = 0
+	}
 
-	exercises, err := models.FilterExercises("%"+name+"%", 50, 0)
+	exercises, err := models.FilterExercises("%"+name+"%", limit, offset)
 	if err != nil {
+		log.Printf("got exercise error %v", err)
 		c.JSON(500, gin.H{
 			"message": err.Error(),
 		})
 		return
 	}
-	c.JSON(200, exercises)
+	var responses []ExerciseResponse
+	for _, exercise := range exercises {
+		responses = append(responses, ExerciseResponse{
+			Id:               exercise.Id,
+			Name:             exercise.Name,
+			PrimaryMuscles:   models.GetArrayFromPgArray(exercise.PrimaryMuscles),
+			SecondaryMuscles: models.GetArrayFromPgArray(exercise.SecondaryMuscles),
+			Force:            models.GetStringFromNullString(exercise.Force),
+			Level:            exercise.Level,
+			Mechanic:         models.GetStringFromNullString(exercise.Mechanic),
+			Equipment:        models.GetStringFromNullString(exercise.Equipment),
+			Category:         exercise.Category,
+			Description:      models.GetStringFromNullString(exercise.Description),
+		})
+	}
+	c.JSON(200, responses)
 }
 
 type CreatePlanParams struct {

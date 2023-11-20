@@ -13,10 +13,10 @@ type Exercises struct {
 	Aliases          pq.StringArray `db:"aliases"`
 	PrimaryMuscles   pq.StringArray `db:"primary_muscles"`
 	SecondaryMuscles pq.StringArray `db:"secondary_muscles"`
-	Force            string         `db:"force"`
+	Force            sql.NullString `db:"force"`
 	Level            string         `db:"level"`
-	Mechanic         string         `db:"mechanic"`
-	Equipment        string         `db:"equipment"`
+	Mechanic         sql.NullString `db:"mechanic"`
+	Equipment        sql.NullString `db:"equipment"`
 	Category         string         `db:"category"`
 	Instructions     pq.StringArray `db:"instructions"`
 	Description      sql.NullString `db:"description"`

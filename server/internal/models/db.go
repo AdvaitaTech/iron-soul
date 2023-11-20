@@ -1,11 +1,13 @@
 package models
 
 import (
+	"database/sql"
 	"fmt"
 	"log"
 	"os"
 
 	"github.com/jmoiron/sqlx"
+	"github.com/lib/pq"
 	_ "github.com/lib/pq"
 )
 
@@ -16,4 +18,20 @@ func GetConnection() *sqlx.DB {
 		log.Fatalln(err)
 	}
 	return db
+}
+
+func GetArrayFromPgArray(arr pq.StringArray) []string {
+	var res []string
+	for _, val := range arr {
+		res = append(res, val)
+	}
+	return res
+}
+
+func GetStringFromNullString(s sql.NullString) string {
+	if s.Valid {
+		return s.String
+	} else {
+		return ""
+	}
 }
