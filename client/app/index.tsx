@@ -9,7 +9,6 @@ import {
   StyledText,
   StyledView,
 } from "../components/Primitives";
-import "../nativewind-output";
 
 type LoadingState = "idle" | "loading" | "success";
 
