@@ -7,6 +7,7 @@ import {
   StyledView,
 } from "../../components/Primitives";
 import { NewPlanCard } from "../../components/PlanCard";
+import { ScrollView } from "react-native-gesture-handler";
 
 function ListWorkouts() {
   return <StyledView />;
@@ -29,9 +30,17 @@ export default function HomeScreen() {
           <StyledText className="text-xl text-white-500">
             Quick workouts with fixed exercises
           </StyledText>
-          <StyledView className="flex items-start py-5">
+          <ScrollView
+            contentContainerStyle={{
+              display: "flex",
+              alignItems: "flex-start",
+              flexDirection: "row",
+              gap: 10,
+            }}
+            className="py-5 flex-grow-0"
+          >
             <NewPlanCard />
-          </StyledView>
+          </ScrollView>
           <StyledText className="text-2xl text-white">Your Workouts</StyledText>
           <StyledText className="text-xl text-white-500">
             Quick workouts with fixed exercises

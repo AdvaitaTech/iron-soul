@@ -1,12 +1,26 @@
-import { StyledIcon, StyledText, StyledView } from "./Primitives";
+import { useRouter } from "expo-router";
+import {
+  StyledIcon,
+  StyledPressable,
+  StyledText,
+  StyledView,
+} from "./Primitives";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 
 export const NewPlanCard = () => {
+  const router = useRouter();
   return (
-    <StyledView className="px-5 py-8 rounded border border-secondary-400 flex items-center justify-center">
-      <StyledIcon name="plus" size={32} className="text-white" />
-      <StyledText className="text-white">New Plan</StyledText>
-    </StyledView>
+    <StyledPressable
+      className="w-[100] h-[150] rounded border border-white-800 flex items-center justify-center relative"
+      onPress={() => {
+        router.push("/home/plan");
+      }}
+    >
+      <StyledIcon name="plus" size={32} color="#ffffff" />
+      <StyledText className="text-white absolute bottom-2 w-full text-center">
+        New Plan
+      </StyledText>
+    </StyledPressable>
   );
 };
 

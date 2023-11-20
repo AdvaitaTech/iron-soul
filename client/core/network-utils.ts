@@ -1,3 +1,4 @@
+import * as SecureStore from "expo-secure-store";
 import { BadDataError, ForbiddenError, InternalError } from "./errors";
 
 export const BASE_URL = "http://localhost:4005";
@@ -63,4 +64,70 @@ export const loginApi = async (email: string, password: string) => {
     .then((res) => {
       return res.json() as Promise<LoginResponse>;
     });
+};
+
+export const debounce = <A>(
+  func: (this: A, ...args: any[]) => unknown,
+  wait: number
+): ((this: A, ...args: any[]) => void) => {
+  var timeout: NodeJS.Timeout | null = null;
+  return function (this: A, ...args: any[]) {
+    let context = this;
+    if (timeout) clearTimeout(timeout);
+    timeout = setTimeout(function () {
+      timeout = null;
+      func.apply(context, args);
+    }, wait);
+  };
+};
+
+export type ExerciseResponse = {
+  id: string;
+  name: string;
+  aliases: string[];
+  primary_muscles: string[];
+  secondary_muscles: string[];
+  force: string;
+  level: string;
+  mechanic: string;
+  equipment: string;
+  category: string;
+  instructions: string[];
+  description: string[];
+  tips: string[];
+};
+
+export const searchExercisesApi = async (
+  search: string,
+  limit: number,
+  offset: number
+) => {
+  const token = await SecureStore.getItemAsync("token");
+  if (!token) return [];
+  return fetch(
+    BASE_URL + `/exercises?name=${search}&limit=${limit}&offset=${offset}`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: token,
+      },
+    }
+  ).then(async (res) => {
+    return res.json() as Promise<ExerciseResponse[]>;
+  });
+};
+
+export const createPlanApi = async (name: string, exercises: string[]) => {
+  const token = await SecureStore.getItemAsync("token");
+  if (!token) return [];
+  return fetch(BASE_URL + `/plans`, {
+    method: "POST",
+    headers: {
+      Authorization: token,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ name, exercises }),
+  }).then(async (res) => {
+    return res.json() as Promise<{}>;
+  });
 };
