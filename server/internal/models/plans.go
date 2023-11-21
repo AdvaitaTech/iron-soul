@@ -7,12 +7,12 @@ import (
 )
 
 type Plan struct {
-	Id        int64         `db:"id"`
-	Name      string        `db:"name"`
-	UserId    int64         `db:"user_id"`
-	CreatedAt time.Time     `db:"created_at"`
-	UpdatedAt time.Time     `db:"updated_at"`
-	Exercises PlanExercises `db:"exercises"`
+	Id        int64         `db:"id" json:"id"`
+	Name      string        `db:"name" json:"name"`
+	UserId    int64         `db:"user_id" json:"user_id"`
+	CreatedAt time.Time     `db:"created_at" json:"createdAt"`
+	UpdatedAt time.Time     `db:"updated_at" json:"updatedAt"`
+	Exercises PlanExercises `db:"exercises" json:"exercises"`
 }
 
 type PlanExercise struct {

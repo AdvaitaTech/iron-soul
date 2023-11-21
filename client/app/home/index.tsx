@@ -6,8 +6,9 @@ import {
   StyledText,
   StyledView,
 } from "../../components/Primitives";
-import { NewPlanCard } from "../../components/PlanCard";
+import PlanCard, { NewPlanCard } from "../../components/PlanCard";
 import { ScrollView } from "react-native-gesture-handler";
+import { usePlans } from "../../core/hooks";
 
 function ListWorkouts() {
   return <StyledView />;
@@ -15,7 +16,9 @@ function ListWorkouts() {
 
 export default function HomeScreen() {
   const [workouts, setWorkouts] = useState([]);
+  const { isLoading, plans, error } = usePlans();
   const router = useRouter();
+  console.log("plans", plans);
 
   return (
     <StyledView className="bg-background-800 w-full h-full p-5">
@@ -31,6 +34,7 @@ export default function HomeScreen() {
             Quick workouts with fixed exercises
           </StyledText>
           <ScrollView
+            horizontal
             contentContainerStyle={{
               display: "flex",
               alignItems: "flex-start",
@@ -39,6 +43,9 @@ export default function HomeScreen() {
             }}
             className="py-5 flex-grow-0"
           >
+            {plans.map((plan) => {
+              return <PlanCard key={plan.id} plan={plan} />;
+            })}
             <NewPlanCard />
           </ScrollView>
           <StyledText className="text-2xl text-white">Your Workouts</StyledText>

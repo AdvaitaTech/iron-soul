@@ -1,5 +1,10 @@
 import * as SecureStore from "expo-secure-store";
-import { BadDataError, ForbiddenError, InternalError } from "./errors";
+import {
+  BadDataError,
+  ForbiddenError,
+  InternalError,
+  TokenError,
+} from "./errors";
 
 export const BASE_URL = "http://localhost:4005";
 
@@ -129,5 +134,25 @@ export const createPlanApi = async (name: string, exercises: string[]) => {
     body: JSON.stringify({ name, exercises }),
   }).then(async (res) => {
     return res.json() as Promise<{}>;
+  });
+};
+
+export type PlanResponse = {
+  id: string;
+  name: string;
+  createdAt: string;
+  updatedAt: string;
+  exercises: ExerciseResponse[];
+};
+
+export const fetchPlansApi = async () => {
+  const token = await SecureStore.getItemAsync("token");
+  if (!token) throw new TokenError("no token available");
+  return fetch(BASE_URL + "/plans", {
+    headers: {
+      Authorization: token,
+    },
+  }).then((res) => {
+    return res.json() as Promise<PlanResponse[]>;
   });
 };
