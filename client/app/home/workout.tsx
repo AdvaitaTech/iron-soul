@@ -11,9 +11,10 @@ import {
   ScrollView,
   Text,
 } from "react-native";
-import { useEffect, useRef, useState } from "react";
+import { Reducer, useEffect, useReducer, useRef, useState } from "react";
 import {
   ExerciseResponse,
+  PlanResponse,
   debounce,
   searchExercisesApi,
 } from "../../core/network-utils";
@@ -102,54 +103,143 @@ export function ExerciseInput({
   );
 }
 
+type WorkoutState = {
+  exercises: {
+    exercise: ExerciseResponse | null;
+    sets: { weight: string; reps: string }[];
+  }[];
+  selectedPlanId: string | null;
+};
+type WorkoutActions =
+  | {
+      type: "setPlan";
+      plan: PlanResponse | null;
+    }
+  | {
+      type: "setExercise";
+      index: number;
+      exercise: ExerciseResponse | null;
+    }
+  | {
+      type: "addExercise";
+    }
+  | {
+      type: "updateSet";
+      exerciseIndex: number;
+      setIndex: number;
+      newSet: Partial<{ weight: string; reps: string }>;
+    }
+  | {
+      type: "addSet";
+      exerciseIndex: number;
+    };
+
+const InitialWorkoutState: WorkoutState = {
+  selectedPlanId: null,
+  exercises: [
+    {
+      exercise: null,
+      sets: [{ weight: "", reps: "" }],
+    },
+  ],
+};
+
+const WorkoutReducer: Reducer<WorkoutState, WorkoutActions> = (
+  state,
+  action
+) => {
+  switch (action.type) {
+    case "setPlan": {
+      if (action.plan === null) {
+        return { ...InitialWorkoutState };
+      } else
+        return {
+          selectedPlanId: action.plan ? action.plan.id : null,
+          exercises: action.plan.exercises.map((e) => ({
+            exercise: e,
+            sets: [{ weight: "", reps: "" }],
+          })),
+        };
+    }
+    case "setExercise": {
+      const currentExercise = state.exercises[action.index];
+      return {
+        ...state,
+        exercises: [
+          ...state.exercises.slice(0, action.index),
+          { ...currentExercise, exercise: action.exercise },
+          ...state.exercises.slice(action.index + 1),
+        ],
+      };
+    }
+    case "addExercise": {
+      return {
+        ...state,
+        exercises: [
+          ...state.exercises,
+          { exercise: null, sets: [{ weight: "", reps: "" }] },
+        ],
+      };
+    }
+    case "updateSet": {
+      const currentExercise = state.exercises[action.exerciseIndex];
+      if (!currentExercise) return state;
+      const currentSet =
+        state.exercises[action.exerciseIndex].sets[action.setIndex];
+      if (!currentSet) return state;
+      return {
+        ...state,
+        exercises: [
+          ...state.exercises.slice(0, action.exerciseIndex),
+          {
+            ...currentExercise,
+            sets: [
+              ...currentExercise.sets.slice(0, action.setIndex),
+              { ...currentSet, ...action.newSet },
+              ...currentExercise.sets.slice(action.setIndex + 1),
+            ],
+          },
+          ...state.exercises.slice(action.exerciseIndex + 1),
+        ],
+      };
+    }
+    case "addSet": {
+      const currentExercise = state.exercises[action.exerciseIndex];
+      if (!currentExercise) return state;
+      return {
+        ...state,
+        exercises: [
+          ...state.exercises.slice(0, action.exerciseIndex),
+          {
+            ...currentExercise,
+            sets: [...currentExercise.sets, { weight: "", reps: "" }],
+          },
+          ...state.exercises.slice(action.exerciseIndex + 1),
+        ],
+      };
+    }
+  }
+};
+
 type ExerciseDetail = {
   exercise: ExerciseResponse | null;
   weight: number;
   reps: number;
 };
+
 export default function WorkoutPage() {
   const router = useRouter();
   const { isLoading, plans, error } = usePlans();
   const { plan } = useLocalSearchParams<{ plan?: string }>();
-  const [exercises, setExercises] = useState<ExerciseDetail[]>([
-    { exercise: null, weight: 0, reps: 0 },
-  ]);
-  const [currentPlanId, setCurrentPlanId] = useState<string | null>(null);
+  const [{ selectedPlanId, exercises }, dispatch] = useReducer(WorkoutReducer, {
+    ...InitialWorkoutState,
+  });
 
   useEffect(() => {
     if (plans.length === 0 || plan === undefined) return;
-    setPlan(plan);
+    const currentPlan = plans.find((p) => p.id === plan) || null;
+    dispatch({ type: "setPlan", plan: currentPlan });
   }, [plans, plan]);
-
-  const setPlan = (planId: string | null) => {
-    setCurrentPlanId(planId);
-    const current = plans.find((p) => p.id === planId);
-    if (!current) {
-      setExercises([{ exercise: null, weight: 0, reps: 0 }]);
-      return;
-    }
-    const newExercises = current.exercises.map((e) => ({
-      exercise: e,
-      weight: 0,
-      reps: 0,
-    }));
-    setExercises(newExercises);
-  };
-
-  const setExerciseDetail = (
-    index: number,
-    details: Partial<ExerciseDetail>
-  ) => {
-    const currentExercise = exercises[index];
-    setExercises([
-      ...exercises.slice(0, index),
-      {
-        ...currentExercise,
-        ...details,
-      },
-      ...exercises.slice(index + 1),
-    ]);
-  };
 
   return (
     <StyledView className="w-full h-full px-5 pt-5 bg-background-800">
@@ -181,10 +271,15 @@ export default function WorkoutPage() {
                 className={clsx(
                   "px-5 py-2 rounded border border-white-800 flex items-center justify-center relative",
                   {
-                    "bg-primary-200": currentPlanId === null,
+                    "bg-primary-200": selectedPlanId === null,
                   }
                 )}
-                onPress={() => setPlan(null)}
+                onPress={() =>
+                  dispatch({
+                    type: "setPlan",
+                    plan: null,
+                  })
+                }
               >
                 <StyledText className="text-white text-center">
                   Custom
@@ -197,10 +292,15 @@ export default function WorkoutPage() {
                     className={clsx(
                       "px-5 py-2 rounded border border-white-800 flex items-center justify-center relative",
                       {
-                        "bg-primary-200": currentPlanId === plan.id,
+                        "bg-primary-200": selectedPlanId === plan.id,
                       }
                     )}
-                    onPress={() => setPlan(plan.id)}
+                    onPress={() =>
+                      dispatch({
+                        type: "setPlan",
+                        plan: plan,
+                      })
+                    }
                   >
                     <StyledText className="text-white text-center">
                       {plan.name}
@@ -223,7 +323,11 @@ export default function WorkoutPage() {
                     {e.exercise === null ? (
                       <ExerciseInput
                         onSelect={(e) => {
-                          setExerciseDetail(i, { exercise: e });
+                          dispatch({
+                            type: "setExercise",
+                            exercise: e,
+                            index: i,
+                          });
                         }}
                       />
                     ) : (
@@ -234,10 +338,10 @@ export default function WorkoutPage() {
                         <Pressable
                           className="absolute right-0"
                           onPress={() => {
-                            setExerciseDetail(i, {
+                            dispatch({
+                              type: "setExercise",
                               exercise: null,
-                              weight: 0,
-                              reps: 0,
+                              index: i,
                             });
                           }}
                         >
@@ -245,27 +349,61 @@ export default function WorkoutPage() {
                         </Pressable>
                       </View>
                     )}
-                    <View className="flex flex-row mt-4">
-                      <View className="flex-1">
-                        <Text className="text-white">Weight (Kgs)</Text>
-                        <TextInput
-                          keyboardType="number-pad"
-                          className="h-8 w-[80] border-b border-b-white-500 text-white"
-                          onChangeText={(t) => {
-                            setExerciseDetail(i, { weight: parseInt(t) });
-                          }}
-                        />
-                      </View>
-                      <View className="flex-1">
-                        <Text className="text-white">Reps (Kgs)</Text>
-                        <TextInput
-                          keyboardType="number-pad"
-                          className="h-8 w-[80] border-b border-b-white-500 text-white"
-                          onChangeText={(t) => {
-                            setExerciseDetail(i, { reps: parseInt(t) });
-                          }}
-                        />
-                      </View>
+                    {e.sets.map((set, j) => {
+                      return (
+                        <View key={j} className="flex flex-row mt-4">
+                          <View className="flex-1">
+                            <Text className="text-white">Weight (Kgs)</Text>
+                            <TextInput
+                              keyboardType="number-pad"
+                              value={set.weight}
+                              className="h-8 w-[80] border-b border-b-white-500 text-white"
+                              onChangeText={(t) => {
+                                dispatch({
+                                  type: "updateSet",
+                                  exerciseIndex: i,
+                                  setIndex: j,
+                                  newSet: {
+                                    weight: t,
+                                  },
+                                });
+                              }}
+                            />
+                          </View>
+                          <View className="flex-1">
+                            <Text className="text-white">Reps (Kgs)</Text>
+                            <TextInput
+                              keyboardType="number-pad"
+                              className="h-8 w-[80] border-b border-b-white-500 text-white"
+                              value={set.reps}
+                              onChangeText={(t) => {
+                                dispatch({
+                                  type: "updateSet",
+                                  exerciseIndex: i,
+                                  setIndex: j,
+                                  newSet: {
+                                    reps: t,
+                                  },
+                                });
+                              }}
+                            />
+                          </View>
+                        </View>
+                      );
+                    })}
+
+                    <View className="mt-5 flex w-full justify-center items-center">
+                      <Pressable
+                        className="bg-primary-200 px-4 py-2 rounded-md "
+                        onPress={() =>
+                          dispatch({
+                            type: "addSet",
+                            exerciseIndex: i,
+                          })
+                        }
+                      >
+                        <Text className="text-white">Add Set</Text>
+                      </Pressable>
                     </View>
                   </View>
                 );
@@ -273,10 +411,9 @@ export default function WorkoutPage() {
               <View className="flex w-full justify-center items-center">
                 <Pressable
                   onPress={() =>
-                    setExercises([
-                      ...exercises,
-                      { exercise: null, weight: 0, reps: 0 },
-                    ])
+                    dispatch({
+                      type: "addExercise",
+                    })
                   }
                 >
                   <FontAwesome name="plus" size={24} color="#ffffff" />
