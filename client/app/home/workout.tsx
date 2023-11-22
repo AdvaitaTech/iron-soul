@@ -1,5 +1,5 @@
 import clsx from "classnames";
-import { Stack, useLocalSearchParams } from "expo-router";
+import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { StyledText, StyledView } from "../../components/Primitives";
 import { StatusBar } from "expo-status-bar";
 import { Picker } from "@react-native-picker/picker";
@@ -108,6 +108,7 @@ type ExerciseDetail = {
   reps: number;
 };
 export default function WorkoutPage() {
+  const router = useRouter();
   const { isLoading, plans, error } = usePlans();
   const { plan } = useLocalSearchParams<{ plan?: string }>();
   const [exercises, setExercises] = useState<ExerciseDetail[]>([
@@ -151,7 +152,7 @@ export default function WorkoutPage() {
   };
 
   return (
-    <StyledView className="w-full h-full p-5 bg-background-800">
+    <StyledView className="w-full h-full px-5 pt-5 bg-background-800">
       <Stack.Screen
         options={{
           title: "New Workout",
@@ -160,124 +161,141 @@ export default function WorkoutPage() {
       {isLoading ? (
         <ActivityIndicator />
       ) : (
-        <ScrollView className="h-full flex">
-          <StyledText className="text-xl text-white">Pick your plan</StyledText>
-          <ScrollView
-            horizontal
-            contentContainerStyle={{
-              display: "flex",
-              alignItems: "flex-start",
-              flexDirection: "row",
-              gap: 10,
-            }}
-            className="py-5 flex-grow-0"
-          >
-            <Pressable
-              key="custom"
-              className={clsx(
-                "px-5 py-2 rounded border border-white-800 flex items-center justify-center relative",
-                {
-                  "bg-primary-200": currentPlanId === null,
-                }
-              )}
-              onPress={() => setPlan(null)}
+        <View className="h-full flex">
+          <ScrollView className="h-full flex-1">
+            <StyledText className="text-xl text-white">
+              Pick your plan
+            </StyledText>
+            <ScrollView
+              horizontal
+              contentContainerStyle={{
+                display: "flex",
+                alignItems: "flex-start",
+                flexDirection: "row",
+                gap: 10,
+              }}
+              className="py-5 flex-grow-0"
             >
-              <StyledText className="text-white text-center">Custom</StyledText>
-            </Pressable>
-            {plans.map((plan) => {
-              return (
-                <Pressable
-                  key={plan.id}
-                  className={clsx(
-                    "px-5 py-2 rounded border border-white-800 flex items-center justify-center relative",
-                    {
-                      "bg-primary-200": currentPlanId === plan.id,
-                    }
-                  )}
-                  onPress={() => setPlan(plan.id)}
-                >
-                  <StyledText className="text-white text-center">
-                    {plan.name}
-                  </StyledText>
-                </Pressable>
-              );
-            })}
-          </ScrollView>
-          <StyledText className="text-xl text-white">Exercises</StyledText>
-          <View className="py-5">
-            {exercises.map((e, i) => {
-              return (
-                <View
-                  key={i}
-                  className="px-3 py-2 border border-white-100 relative rounded-md text-white w-full mb-5"
-                >
-                  <Text className="text-white font-semibold mb-4">
-                    Exercise {i + 1}
-                  </Text>
-                  {e.exercise === null ? (
-                    <ExerciseInput
-                      onSelect={(e) => {
-                        setExerciseDetail(i, { exercise: e });
-                      }}
-                    />
-                  ) : (
-                    <View>
-                      <Text className="text-xl p-0 h-8 text-white">
-                        {e.exercise.name}
-                      </Text>
-                      <Pressable
-                        className="absolute right-0"
-                        onPress={() => {
-                          setExerciseDetail(i, {
-                            exercise: null,
-                            weight: 0,
-                            reps: 0,
-                          });
-                        }}
-                      >
-                        <FontAwesome name="close" size={20} color="#d19288" />
-                      </Pressable>
-                    </View>
-                  )}
-                  <View className="flex flex-row mt-4">
-                    <View className="flex-1">
-                      <Text className="text-white">Weight (Kgs)</Text>
-                      <TextInput
-                        keyboardType="number-pad"
-                        className="h-8 w-[80] border-b border-b-white-500 text-white"
-                        onChangeText={(t) => {
-                          setExerciseDetail(i, { weight: parseInt(t) });
+              <Pressable
+                key="custom"
+                className={clsx(
+                  "px-5 py-2 rounded border border-white-800 flex items-center justify-center relative",
+                  {
+                    "bg-primary-200": currentPlanId === null,
+                  }
+                )}
+                onPress={() => setPlan(null)}
+              >
+                <StyledText className="text-white text-center">
+                  Custom
+                </StyledText>
+              </Pressable>
+              {plans.map((plan) => {
+                return (
+                  <Pressable
+                    key={plan.id}
+                    className={clsx(
+                      "px-5 py-2 rounded border border-white-800 flex items-center justify-center relative",
+                      {
+                        "bg-primary-200": currentPlanId === plan.id,
+                      }
+                    )}
+                    onPress={() => setPlan(plan.id)}
+                  >
+                    <StyledText className="text-white text-center">
+                      {plan.name}
+                    </StyledText>
+                  </Pressable>
+                );
+              })}
+            </ScrollView>
+            <StyledText className="text-xl text-white">Exercises</StyledText>
+            <View className="py-5">
+              {exercises.map((e, i) => {
+                return (
+                  <View
+                    key={i}
+                    className="px-3 py-2 border border-white-100 relative rounded-md text-white w-full mb-5"
+                  >
+                    <Text className="text-white font-semibold mb-4">
+                      Exercise {i + 1}
+                    </Text>
+                    {e.exercise === null ? (
+                      <ExerciseInput
+                        onSelect={(e) => {
+                          setExerciseDetail(i, { exercise: e });
                         }}
                       />
-                    </View>
-                    <View className="flex-1">
-                      <Text className="text-white">Reps (Kgs)</Text>
-                      <TextInput
-                        keyboardType="number-pad"
-                        className="h-8 w-[80] border-b border-b-white-500 text-white"
-                        onChangeText={(t) => {
-                          setExerciseDetail(i, { reps: parseInt(t) });
-                        }}
-                      />
+                    ) : (
+                      <View>
+                        <Text className="text-xl p-0 h-8 text-white">
+                          {e.exercise.name}
+                        </Text>
+                        <Pressable
+                          className="absolute right-0"
+                          onPress={() => {
+                            setExerciseDetail(i, {
+                              exercise: null,
+                              weight: 0,
+                              reps: 0,
+                            });
+                          }}
+                        >
+                          <FontAwesome name="close" size={20} color="#d19288" />
+                        </Pressable>
+                      </View>
+                    )}
+                    <View className="flex flex-row mt-4">
+                      <View className="flex-1">
+                        <Text className="text-white">Weight (Kgs)</Text>
+                        <TextInput
+                          keyboardType="number-pad"
+                          className="h-8 w-[80] border-b border-b-white-500 text-white"
+                          onChangeText={(t) => {
+                            setExerciseDetail(i, { weight: parseInt(t) });
+                          }}
+                        />
+                      </View>
+                      <View className="flex-1">
+                        <Text className="text-white">Reps (Kgs)</Text>
+                        <TextInput
+                          keyboardType="number-pad"
+                          className="h-8 w-[80] border-b border-b-white-500 text-white"
+                          onChangeText={(t) => {
+                            setExerciseDetail(i, { reps: parseInt(t) });
+                          }}
+                        />
+                      </View>
                     </View>
                   </View>
-                </View>
-              );
-            })}
-            <View className="flex w-full justify-center items-center">
-              <Pressable
-                onPress={() =>
-                  setExercises([
-                    ...exercises,
-                    { exercise: null, weight: 0, reps: 0 },
-                  ])
-                }
-              >
-                <FontAwesome name="plus" size={24} color="#ffffff" />
-              </Pressable>
+                );
+              })}
+              <View className="flex w-full justify-center items-center">
+                <Pressable
+                  onPress={() =>
+                    setExercises([
+                      ...exercises,
+                      { exercise: null, weight: 0, reps: 0 },
+                    ])
+                  }
+                >
+                  <FontAwesome name="plus" size={24} color="#ffffff" />
+                </Pressable>
+              </View>
             </View>
-          </View>
-        </ScrollView>
+          </ScrollView>
+          <Pressable
+            className="py-3 bg-primary-400 rounded-lg flex items-center justify-center"
+            onPress={() => {
+              console.log("Got data", exercises);
+              // router.push("/home/workout")
+            }}
+          >
+            <StyledText className="text-lg text-white-500 font-semibold ">
+              End Workout
+            </StyledText>
+          </Pressable>
+        </View>
       )}
       <StatusBar style="light" />
     </StyledView>
