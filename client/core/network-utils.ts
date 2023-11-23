@@ -156,3 +156,20 @@ export const fetchPlansApi = async () => {
     return res.json() as Promise<PlanResponse[]>;
   });
 };
+
+export const createWorkoutApi = async (
+  planId: string | null,
+  sets: { exercise_id: string; weight: number; reps: number }[]
+) => {
+  const token = await SecureStore.getItemAsync("token");
+  if (!token) throw new TokenError("no token available");
+  return fetch(BASE_URL + "/workouts", {
+    method: "POST",
+    headers: {
+      Authorization: token,
+    },
+    body: JSON.stringify({ plan_id: planId ? parseInt(planId) : -1, sets }),
+  }).then((res) => {
+    return res.json() as Promise<{}>;
+  });
+};

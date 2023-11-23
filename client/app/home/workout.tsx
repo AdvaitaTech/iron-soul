@@ -15,6 +15,7 @@ import { Reducer, useEffect, useReducer, useRef, useState } from "react";
 import {
   ExerciseResponse,
   PlanResponse,
+  createWorkoutApi,
   debounce,
   searchExercisesApi,
 } from "../../core/network-utils";
@@ -30,7 +31,6 @@ const debouncedSearch = debounce(
   ) => {
     searchExercisesApi(search, limit, offset)
       .then((exercises) => {
-        console.log("exers", exercises);
         setExercises(exercises || []);
       })
       .catch((e) => {
@@ -424,8 +424,20 @@ export default function WorkoutPage() {
           <Pressable
             className="py-3 bg-primary-400 rounded-lg flex items-center justify-center"
             onPress={() => {
-              console.log("Got data", exercises);
-              // router.push("/home/workout")
+              createWorkoutApi(
+                selectedPlanId,
+                exercises
+                  .filter((e) => e.exercise !== null)
+                  .flatMap((ex) => {
+                    return ex.sets.map((set) => ({
+                      exercise_id: ex.exercise!.id,
+                      weight: parseInt(set.weight),
+                      reps: parseInt(set.reps),
+                    }));
+                  })
+              ).then(() => {
+                router.push("/home");
+              });
             }}
           >
             <StyledText className="text-lg text-white-500 font-semibold ">
