@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	api.LoadEnv()
+	api.LoadEnv("./")
 	r := api.SetupRouter()
 	r.Run(":" + os.Getenv("PORT"))
 }

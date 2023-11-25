@@ -7,7 +7,7 @@ import (
 	"github.com/joho/godotenv"
 )
 
-func LoadEnv() {
+func LoadEnv(prefix string) {
 	env := os.Getenv("ENV")
 	if env == "" {
 		env = "development"
@@ -22,7 +22,7 @@ func LoadEnv() {
 		file = ".env.test"
 	}
 
-	godotenv.Load("./" + file)
+	godotenv.Load(prefix + file)
 }
 
 func SetupRouter() *gin.Engine {

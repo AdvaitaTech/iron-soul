@@ -38,7 +38,7 @@ func CallRegisterApi(r *gin.Engine, email string, password string) RegisterRespo
 }
 
 func TestAuthApi(t *testing.T) {
-	api.LoadEnv()
+	api.LoadEnv("../")
 	r := api.SetupRouter()
 
 	t.Run("should register user", func(t *testing.T) {

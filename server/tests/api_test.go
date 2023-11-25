@@ -48,7 +48,7 @@ type AllExercisesResponse []ExerciseResponse
 type AllPlanResponses []PlanResponse
 
 func TestExercisesApi(t *testing.T) {
-	api.LoadEnv()
+	api.LoadEnv("../")
 	r := api.SetupRouter()
 	register := CallRegisterApi(r, "testing210@example.com", "testing@123")
 
