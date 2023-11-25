@@ -1,5 +1,10 @@
 import { Reducer, useEffect, useReducer, useState } from "react";
-import { PlanResponse, fetchPlansApi } from "./network-utils";
+import {
+  PlanResponse,
+  WorkoutResponse,
+  fetchPlansApi,
+  fetchWorkoutsApi,
+} from "./network-utils";
 
 type UsePlanState = {
   isLoading: boolean;
@@ -48,8 +53,68 @@ export const usePlans = () => {
       .then((plans) => {
         dispatch({ type: "loadSuccess", plans });
       })
-      .catch((e) => dispatch({ type: "loadError", error: e.toString() }));
+      .catch((e) => {
+        console.error("fetch plans error", e);
+        dispatch({ type: "loadError", error: e.toString() });
+      });
   }, []);
 
   return { isLoading, plans, error };
+};
+
+type WorkoutsState = {
+  isLoading: boolean;
+  error: string | null;
+  workouts: WorkoutResponse[];
+  limit: number;
+  offset: number;
+};
+
+const InitialWorkoutState: WorkoutsState = {
+  isLoading: false,
+  error: null,
+  workouts: [],
+  limit: 10,
+  offset: 0,
+};
+
+type WorkoutActions =
+  | {
+      type: "loadStart";
+    }
+  | {
+      type: "loadSuccess";
+      workouts: WorkoutResponse[];
+    }
+  | {
+      type: "loadError";
+      error: string;
+    };
+
+export const useWorkouts = () => {
+  const [{ isLoading, workouts, error }, dispatch] = useReducer<
+    Reducer<WorkoutsState, WorkoutActions>
+  >(
+    (state, action) => {
+      return state;
+    },
+    { ...InitialWorkoutState }
+  );
+
+  useEffect(() => {
+    dispatch({ type: "loadStart" });
+    fetchWorkoutsApi(10, 0)
+      .then((workouts) => {
+        dispatch({
+          type: "loadSuccess",
+          workouts,
+        });
+      })
+      .catch((e) => {
+        console.error("fetch workouts error", e);
+        dispatch({ type: "loadError", error: e.toString() });
+      });
+  }, []);
+
+  return { isLoading, workouts, error };
 };

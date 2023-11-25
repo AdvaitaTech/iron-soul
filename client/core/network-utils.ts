@@ -173,3 +173,31 @@ export const createWorkoutApi = async (
     return res.json() as Promise<{}>;
   });
 };
+
+export type WorkoutSetResponse = {
+  workout_id: string;
+  name: string;
+  exercise_id: string;
+  weight: number;
+  reps: number;
+};
+
+export type WorkoutResponse = {
+  id: string;
+  plan_id: string;
+  createdAt: string;
+  updatedAt: string;
+  sets: WorkoutSetResponse[];
+};
+
+export const fetchWorkoutsApi = async (limit: number, offset: number) => {
+  const token = await SecureStore.getItemAsync("token");
+  if (!token) throw new TokenError("no token available");
+  return fetch(BASE_URL + "/workouts", {
+    headers: {
+      Authorization: token,
+    },
+  }).then((res) => {
+    return res.json() as Promise<WorkoutResponse[]>;
+  });
+};

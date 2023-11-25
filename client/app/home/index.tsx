@@ -8,14 +8,32 @@ import {
 } from "../../components/Primitives";
 import PlanCard, { NewPlanCard } from "../../components/PlanCard";
 import { ScrollView } from "react-native-gesture-handler";
-import { usePlans } from "../../core/hooks";
+import { usePlans, useWorkouts } from "../../core/hooks";
+import { View } from "react-native";
+import { WorkoutResponse } from "../../core/network-utils";
 
-function ListWorkouts() {
-  return <StyledView />;
+function ListWorkouts({ workouts }: { workouts: WorkoutResponse[] }) {
+  if (!workouts)
+    return (
+      <StyledText className="text-white text-center mt-20">
+        You have no recent workouts
+      </StyledText>
+    );
+  return (
+    <View className="">
+      {workouts.map((workout) => {
+        return <View className="flex"></View>;
+      })}
+    </View>
+  );
 }
 
 export default function HomeScreen() {
-  const [workouts, setWorkouts] = useState([]);
+  const {
+    isLoading: isWorkoutLoading,
+    workouts,
+    error: workoutsError,
+  } = useWorkouts();
   const { isLoading, plans, error } = usePlans();
   const router = useRouter();
   console.log("plans", plans);
@@ -49,17 +67,8 @@ export default function HomeScreen() {
             <NewPlanCard />
           </ScrollView>
           <StyledText className="text-2xl text-white">Your Workouts</StyledText>
-          <StyledText className="text-xl text-white-500">
-            Quick workouts with fixed exercises
-          </StyledText>
           <StyledView>
-            {workouts.length === 0 ? (
-              <StyledText className="text-white text-center mt-20">
-                You have no recent workouts
-              </StyledText>
-            ) : (
-              <ListWorkouts />
-            )}
+            <ListWorkouts workouts={workouts} />
           </StyledView>
         </StyledView>
         <StyledPressable
