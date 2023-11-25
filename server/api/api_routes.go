@@ -185,6 +185,7 @@ func FetchWorkouts(c *gin.Context) {
 	}
 	workouts, err := models.FetchWorkoutsOfUser(user_id.(int64), 20, 0)
 	if err != nil {
+		log.Printf("got workout fetch error %s", err.Error())
 		c.JSON(500, gin.H{
 			"message": err.Error(),
 		})

@@ -3,6 +3,7 @@ package tests
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -35,15 +36,6 @@ type PlanResponse struct {
 	Exercises []ExerciseResponse
 }
 
-// type SetResponse struct {
-//
-// }
-// type WorkoutResponse struct {
-//   PlanId int64 `json:"plan_id"`
-//   Id int64 `json:"id"`
-//   Sets []
-// }
-
 type AllExercisesResponse []ExerciseResponse
 type AllPlanResponses []PlanResponse
 
@@ -51,6 +43,7 @@ func TestExercisesApi(t *testing.T) {
 	api.LoadEnv("../")
 	r := api.SetupRouter()
 	register := CallRegisterApi(r, "testing210@example.com", "testing@123")
+	var PlanId int64
 
 	t.Run("should fetch exercises by name", func(t *testing.T) {
 		w := httptest.NewRecorder()
@@ -93,6 +86,7 @@ func TestExercisesApi(t *testing.T) {
 		assert.Equal(t, nil, json_err)
 		assert.Equal(t, 200, w.Code)
 		plan := result[0]
+		PlanId = plan.Id
 		assert.Contains(t, plan.Name, "p1")
 		assert.Equal(t, "3/4 Sit-Up", plan.Exercises[0].Name)
 		assert.Equal(t, "90/90 Hamstring", plan.Exercises[1].Name)
@@ -101,6 +95,18 @@ func TestExercisesApi(t *testing.T) {
 	t.Run("should create a workout", func(t *testing.T) {
 		w := httptest.NewRecorder()
 		jsonStr := []byte(`{"plan_id": -1, "sets": [{"exercise_id": "b1345a14-a309-43ac-b9de-aef5120f04b2", "weight": 10, "reps": 20}, {"exercise_id": "027fb70a-e288-4cf3-b6c1-8e05da0eb984", "weight": 15, "reps": 25}]}`)
+		req, err := http.NewRequest("POST", "/workouts", bytes.NewBuffer(jsonStr))
+		req.Header.Add("Authorization", register.Token)
+		req.Header.Add("Content-Type", "application/json")
+		r.ServeHTTP(w, req)
+		log.Printf("got error %#v", err)
+		assert.Equal(t, nil, err)
+		assert.Equal(t, 200, w.Code)
+	})
+
+	t.Run("should create a workout within plan", func(t *testing.T) {
+		w := httptest.NewRecorder()
+		jsonStr := []byte(fmt.Sprintf(`{"plan_id": %d, "sets": [{"exercise_id": "b1345a14-a309-43ac-b9de-aef5120f04b2", "weight": 10, "reps": 20}, {"exercise_id": "027fb70a-e288-4cf3-b6c1-8e05da0eb984", "weight": 15, "reps": 25}]}`, PlanId))
 		req, err := http.NewRequest("POST", "/workouts", bytes.NewBuffer(jsonStr))
 		req.Header.Add("Authorization", register.Token)
 		req.Header.Add("Content-Type", "application/json")
@@ -119,6 +125,7 @@ func TestExercisesApi(t *testing.T) {
 		buf.ReadFrom(w.Body)
 		var result []models.Workout
 		json_err := json.Unmarshal(buf.Bytes(), &result)
+		log.Printf("got workouts %#v", result)
 		assert.Equal(t, nil, err)
 		assert.Equal(t, nil, json_err)
 		assert.Equal(t, 200, w.Code)
@@ -129,5 +136,13 @@ func TestExercisesApi(t *testing.T) {
 		assert.Equal(t, "90/90 Hamstring", plan.Sets[1].Name)
 		assert.Equal(t, int64(15), plan.Sets[1].Weight)
 		assert.Equal(t, int64(25), plan.Sets[1].Reps)
+		plan2 := result[1]
+		assert.Equal(t, "p1", plan2.Name.String)
+		assert.Equal(t, "3/4 Sit-Up", plan2.Sets[0].Name)
+		assert.Equal(t, int64(10), plan2.Sets[0].Weight)
+		assert.Equal(t, int64(20), plan2.Sets[0].Reps)
+		assert.Equal(t, "90/90 Hamstring", plan2.Sets[1].Name)
+		assert.Equal(t, int64(15), plan2.Sets[1].Weight)
+		assert.Equal(t, int64(25), plan2.Sets[1].Reps)
 	})
 }

@@ -20,6 +20,7 @@ type RegisterResponse struct {
 }
 
 func CallRegisterApi(r *gin.Engine, email string, password string) RegisterResponse {
+	log.Printf("registering %s", email)
 	w := httptest.NewRecorder()
 	form := url.Values{
 		"email":    {email},

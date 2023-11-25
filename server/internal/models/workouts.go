@@ -9,12 +9,13 @@ import (
 )
 
 type Workout struct {
-	Id        int64         `db:"id"`
-	UserId    int64         `db:"user_id"`
-	PlanId    sql.NullInt64 `db:"plan_id"`
-	CreatedAt time.Time     `db:"created_at"`
-	UpdatedAt time.Time     `db:"updated_at"`
-	Sets      WorkoutSets   `db:"sets"`
+	Id        int64          `db:"id" json:"id"`
+	Name      sql.NullString `db:"name" json:"name"`
+	UserId    int64          `db:"user_id" json:"user_id"`
+	PlanId    sql.NullInt64  `db:"plan_id" json:"plan_id"`
+	CreatedAt time.Time      `db:"created_at" json:"createdAt"`
+	UpdatedAt time.Time      `db:"updated_at" json:"updatedAt"`
+	Sets      WorkoutSets    `db:"sets"`
 }
 
 type WorkoutSet struct {
@@ -78,17 +79,18 @@ func FetchWorkoutsOfUser(user_id int64, limit int64, offset int64) ([]Workout, e
 	db := GetConnection()
 	var workouts []Workout
 	err := db.Select(&workouts, `
-    SELECT w.*, COALESCE(json_agg(json_build_object(
+    SELECT w.*, p.name, COALESCE(json_agg(json_build_object(
       'workout_id', ws.workout_id,
       'exercise_id', ws.exercise_id,
       'name', e.name,
       'weight', ws.weight,
       'reps', ws.reps
-    )) FILTER (WHERE ws.id IS NOT NULL), '[]') as sets
+    ) ORDER BY ws.id) FILTER (WHERE ws.id IS NOT NULL), '[]') as sets
     FROM workouts w
       JOIN workout_sets ws ON ws.workout_id = w.id AND w.user_id = $1
       JOIN exercises e ON ws.exercise_id = e.id
-    GROUP BY w.id, ws.workout_id
+      LEFT JOIN plans p ON w.plan_id = p.id
+    GROUP BY w.id, ws.workout_id, p.name
     ORDER BY w.created_at
     LIMIT $2 OFFSET $3
     `, user_id, limit, offset)

@@ -72,10 +72,10 @@ func FetchPlansOfUser(user_id int64) ([]Plan, error) {
 	err := db.Select(&plans, `
     SELECT p.*, COALESCE(json_agg(row_to_json(e)) FILTER (WHERE e.id IS NOT NULL), '[]') as exercises
     FROM plans p
-      LEFT JOIN plan_exercises pe ON pe.plan_id = p.id 
+      JOIN plan_exercises pe ON pe.plan_id = p.id AND p.user_id=$1
       LEFT JOIN exercises e ON pe.exercise_id = e.id
     GROUP BY p.id, pe.plan_id
-    `)
+    `, user_id)
 	if err != nil {
 		return []Plan{}, err
 	}
