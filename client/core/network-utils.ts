@@ -183,6 +183,7 @@ export type WorkoutSetResponse = {
 };
 
 export type WorkoutResponse = {
+  name: string | null;
   id: string;
   plan_id: string;
   createdAt: string;

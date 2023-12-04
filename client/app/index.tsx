@@ -44,7 +44,7 @@ export default function App() {
   useEffect(() => {
     SecureStore.getItemAsync("token").then((token) => {
       console.log("got token", token);
-      if (token) router.replace("/home/workout");
+      if (token) router.replace("/home");
     });
   }, [SecureStore, router]);
 

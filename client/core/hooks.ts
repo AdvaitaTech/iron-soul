@@ -81,6 +81,8 @@ const InitialWorkoutState: WorkoutsState = {
 type WorkoutActions =
   | {
       type: "loadStart";
+      limit?: number;
+      offset?: number;
     }
   | {
       type: "loadSuccess";
@@ -96,7 +98,30 @@ export const useWorkouts = () => {
     Reducer<WorkoutsState, WorkoutActions>
   >(
     (state, action) => {
-      return state;
+      switch (action.type) {
+        case "loadStart": {
+          return {
+            ...state,
+            isLoading: true,
+            limit: action.limit !== undefined ? action.limit : state.limit,
+            offset: action.offset !== undefined ? action.offset : state.offset,
+          };
+        }
+        case "loadSuccess": {
+          return {
+            ...state,
+            isLoading: false,
+            workouts: action.workouts,
+          };
+        }
+        case "loadError": {
+          return {
+            ...state,
+            isLoading: false,
+            error: action.error,
+          };
+        }
+      }
     },
     { ...InitialWorkoutState }
   );

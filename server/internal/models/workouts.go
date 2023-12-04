@@ -9,13 +9,13 @@ import (
 )
 
 type Workout struct {
-	Id        int64          `db:"id" json:"id"`
-	Name      sql.NullString `db:"name" json:"name"`
-	UserId    int64          `db:"user_id" json:"user_id"`
-	PlanId    sql.NullInt64  `db:"plan_id" json:"plan_id"`
-	CreatedAt time.Time      `db:"created_at" json:"createdAt"`
-	UpdatedAt time.Time      `db:"updated_at" json:"updatedAt"`
-	Sets      WorkoutSets    `db:"sets"`
+	Id        int64         `db:"id" json:"id"`
+	Namj      *string       `db:"name" json:"name"`
+	UserId    int64         `db:"user_id" json:"user_id"`
+	PlanId    sql.NullInt64 `db:"plan_id" json:"plan_id"`
+	CreatedAt time.Time     `db:"created_at" json:"createdAt"`
+	UpdatedAt time.Time     `db:"updated_at" json:"updatedAt"`
+	Sets      WorkoutSets   `db:"sets" json:"sets"`
 }
 
 type WorkoutSet struct {
